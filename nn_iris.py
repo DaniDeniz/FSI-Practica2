@@ -20,15 +20,17 @@ def one_hot(x, n):
 
 data = np.genfromtxt('iris.data', delimiter=",")  # iris.data file loading
 np.random.shuffle(data)  # we shuffle the data
-x_data = data[:, 0:4].astype('f4')  # the samples are the four first rows of data
+#x_data = data[:, 0:4].astype('f4')  # the samples are the four first rows of data
 x_data_tr = data[:int(len(data)*0.70), 0:4].astype('f4')  # the samples are the four first rows of data
 x_data_val = data[int(len(data)*0.70):int(len(data)*0.85), 0:4].astype('f4')
-x_data_tr = data[int(len(data)*0.85):int(len(data)), 0:4].astype('f4')
-y_data = one_hot(data[:, 4].astype(int), 3)  # the labels are in the last row. Then we encode them in one hot code
+x_data_test = data[int(len(data)*0.85):int(len(data)), 0:4].astype('f4')
+y_data_tr = one_hot(data[:int(len(data)*0.70), 4].astype(int), 3)  # the labels are in the last row. Then we encode them in one hot code
+y_data_val = one_hot(data[int(len(data)*0.70):int(len(data)*0.85), 4].astype(int), 3)
+y_data_test = one_hot(data[int(len(data)*0.85):int(len(data)), 4].astype(int), 3)
 
 print "\nSome samples..."
 for i in range(20):
-    print x_data[i], " -> ", y_data[i]
+    print x_data_tr[i], " -> ", y_data_tr[i]
 print
 
 x = tf.placeholder("float", [None, 4])  # samples
@@ -58,15 +60,32 @@ print "   Start training...  "
 print "----------------------"
 
 batch_size = 20
+epoch = 0
+marginError = 0.0001
+previousError = 10000
 
-for epoch in xrange(2):
-    for jj in xrange(len(x_data) / batch_size):
-        batch_xs = x_data[jj * batch_size: jj * batch_size + batch_size]
-        batch_ys = y_data[jj * batch_size: jj * batch_size + batch_size]
+while 1:
+    for jj in xrange(len(x_data_tr) / batch_size):
+        batch_xs = x_data_tr[jj * batch_size: jj * batch_size + batch_size]
+        batch_ys = y_data_tr[jj * batch_size: jj * batch_size + batch_size]
         sess.run(train, feed_dict={x: batch_xs, y_: batch_ys})
 
-    print "Epoch #:", epoch, "Error: ", sess.run(loss, feed_dict={x: batch_xs, y_: batch_ys})
-    result = sess.run(y, feed_dict={x: batch_xs})
-    for b, r in zip(batch_ys, result):
-        print b, "-->", r
-    print "----------------------------------------------------------------------------------"
+    error = sess.run(loss, feed_dict={x: x_data_val, y_: y_data_val})
+    epoch += 1
+    print "Error: ", error, " Epocas:", epoch
+    if abs(error - previousError) <= marginError:
+        break
+
+    previousError = error
+print "------------------------Test Set--------------------------------------------------"
+
+result = sess.run(y, feed_dict={x: x_data_test})
+coincidencias = 0.0
+for b, r in zip(y_data_test, result):
+    if b.argmax() == r.argmax():
+        coincidencias += 1
+
+error = sess.run(loss, feed_dict={x: x_data_test, y_: y_data_test})
+
+print 'Error = ', error, 'Epocas = ', epoch, ' aciertos = ', coincidencias
+print 'Porcentaje de acierto = ', int((coincidencias/len(y_data_test))*100), '%'
