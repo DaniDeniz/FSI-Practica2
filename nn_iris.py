@@ -20,7 +20,7 @@ def one_hot(x, n):
 
 data = np.genfromtxt('iris.data', delimiter=",")  # iris.data file loading
 np.random.shuffle(data)  # we shuffle the data
-#x_data = data[:, 0:4].astype('f4')  # the samples are the four first rows of data
+x_data = data[:, 0:4].astype('f4')  # the samples are the four first rows of data
 x_data_tr = data[:int(len(data)*0.70), 0:4].astype('f4')  # the samples are the four first rows of data
 x_data_val = data[int(len(data)*0.70):int(len(data)*0.85), 0:4].astype('f4')
 x_data_tr = data[int(len(data)*0.85):int(len(data)), 0:4].astype('f4')
@@ -59,7 +59,7 @@ print "----------------------"
 
 batch_size = 20
 
-for epoch in xrange(1001):
+for epoch in xrange(2):
     for jj in xrange(len(x_data) / batch_size):
         batch_xs = x_data[jj * batch_size: jj * batch_size + batch_size]
         batch_ys = y_data[jj * batch_size: jj * batch_size + batch_size]
