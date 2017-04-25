@@ -22,12 +22,10 @@ def one_hot(x, n):
 
 
 f = gzip.open('mnist.pkl.gz', 'rb')
-data_set = cPickle.load(f)
+train_set, valid_set, test_set = cPickle.load(f)
 f.close()
 
-train_set = data_set[:int(len(data_set)*0.7)]
-valid_set = data_set[int(len(data_set)*0.7):int(len(data_set)*0.85)]
-test_set = data_set[int(len(data_set)*0.85):]
+
 
 x_data_tr, y_data_tr = train_set
 x_data_val, y_data_val = valid_set
