@@ -1,6 +1,6 @@
 import tensorflow as tf
 import numpy as np
-
+import matplotlib.pyplot as plt
 
 # Translate a list of labels into an array of 0's and one 1.
 # i.e.: 4 -> [0,0,0,0,1,0,0,0,0,0]
@@ -63,6 +63,7 @@ batch_size = 20
 epoch = 0
 marginError = 0.0001
 previousError = 10000
+errorFunction = []
 
 while 1:
     for jj in xrange(len(x_data_tr) / batch_size):
@@ -71,6 +72,7 @@ while 1:
         sess.run(train, feed_dict={x: batch_xs, y_: batch_ys})
 
     error = sess.run(loss, feed_dict={x: x_data_val, y_: y_data_val})
+    errorFunction.append(error)
     epoch += 1
     print "Error: ", error, " Epocas:", epoch
     if abs(error - previousError) <= marginError:
@@ -89,3 +91,8 @@ error = sess.run(loss, feed_dict={x: x_data_test, y_: y_data_test})
 
 print 'Error = ', error, 'Epocas = ', epoch, ' aciertos = ', coincidencias
 print 'Porcentaje de acierto = ', int((coincidencias/len(y_data_test))*100), '%'
+
+plt.plot(errorFunction)
+plt.ylabel("Error")
+plt.xlabel("Epocas")
+plt.show()
